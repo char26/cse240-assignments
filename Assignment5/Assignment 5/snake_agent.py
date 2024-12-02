@@ -132,8 +132,63 @@ class SnakeAgent:
     #   states as mentioned in helper_func, use the state variable to contain all that.
     def agent_action(self, state: list, points, dead):
         possible_actions = self.helper_func(state)
-        # If there are no possible actions, we have surrounded ourselves. Goodbye cruel world.
         if len(possible_actions) == 0:
             return 0
-        action = random.choice(possible_actions)
-        return action
+
+        reward = self.compute_reward(points, dead)
+        state_tuple = tuple(state)
+        snake_head_x = state[0]
+        snake_head_y = state[1]
+        snake_body = state[2]
+        food_x = state[3]
+        food_y = state[4]
+
+        # Understanding the current state of the game
+        num_adjoining_wall_x_states = 0 # no wall
+        if snake_head_x == 0:
+            num_adjoining_wall_x_states = 1 # wall to left
+        elif snake_head_x == helper.DISPLAY_SIZE:
+            num_adjoining_wall_x_states = 2 # wall to right
+
+        num_adjoining_wall_y_states = 0 # no wall
+        if snake_head_y == 0:
+            num_adjoining_wall_y_states = 1 # wall above
+        elif snake_head_y == helper.DISPLAY_SIZE:
+            num_adjoining_wall_y_states = 2 # wall below
+
+        num_food_dir_x = 0 # no food
+        if snake_head_y == food_y and snake_head_x < food_x:
+            num_food_dir_x = 1 # food to left
+        elif snake_head_y == food_y and snake_head_x > food_x:
+            num_food_dir_x = 2 # food to right
+
+        num_food_dir_y = 0 # no food
+        if snake_head_x == food_x and snake_head_y < food_y:
+            num_food_dir_y = 1 # food above
+        elif snake_head_x == food_x and snake_head_y > food_y:
+            num_food_dir_y = 2 # food below
+
+        num_adjoining_body_top_states = 0 # no body above
+        if (snake_head_x, snake_head_y - helper.GRID_SIZE) in snake_body:
+            num_adjoining_body_top_states = 1
+
+        num_adjoining_body_bottom_states = 0 # no body below
+        if (snake_head_x, snake_head_y + helper.GRID_SIZE) in snake_body:
+            num_adjoining_body_bottom_states = 1
+
+        num_adjoining_body_left_states = 0 # no body to left
+        if (snake_head_x - helper.GRID_SIZE, snake_head_y) in snake_body:
+            num_adjoining_body_left_states = 1
+
+        num_adjoining_body_right_states = 0 # no body to right
+        if (snake_head_x + helper.GRID_SIZE, snake_head_y) in snake_body:
+            num_adjoining_body_right_states = 1
+
+        if self._train:
+            pass
+        else:
+            pass
+
+
+
+        # return action

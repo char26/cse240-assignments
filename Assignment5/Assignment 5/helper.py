@@ -20,15 +20,15 @@ BLACK = (0, 0, 0)
 GREEN = (0, 255, 0)
 
 #   Here we define more variables to help the snake with walls, food, and actions
-NUM_ADJOINING_WALL_X_STATES=3
-NUM_ADJOINING_WALL_Y_STATES=3
-NUM_FOOD_DIR_X=3
-NUM_FOOD_DIR_Y=3
-NUM_ADJOINING_BODY_TOP_STATES=2
-NUM_ADJOINING_BODY_BOTTOM_STATES=2
-NUM_ADJOINING_BODY_LEFT_STATES=2
-NUM_ADJOINING_BODY_RIGHT_STATES=2
-NUM_ACTIONS = 4
+NUM_ADJOINING_WALL_X_STATES=3       # 0: no wall, 1: wall to left, 2: wall to right,
+NUM_ADJOINING_WALL_Y_STATES=3       # 0: no wall, 1: wall above, 2: wall below,
+NUM_FOOD_DIR_X=3                    # 0: no food, 1: food to left, 2: food to right
+NUM_FOOD_DIR_Y=3                    # 0: no food, 1: food above, 2: food below
+NUM_ADJOINING_BODY_TOP_STATES=2     # 0: no body above, 1: body above
+NUM_ADJOINING_BODY_BOTTOM_STATES=2  # 0: no body below, 1: body below
+NUM_ADJOINING_BODY_LEFT_STATES=2    # 0: no body to left, 1: body to left
+NUM_ADJOINING_BODY_RIGHT_STATES=2   # 0: no body to right, 1: body to right
+NUM_ACTIONS = 4                     # 0: up, 1: down, 2: left, 3: right
 
 #   Here we define a bunch of variables that will determine training, testing and displaying the result
 NUM_TRAIN_ITER = 5000
@@ -50,7 +50,7 @@ MODEL_SAVE_FILE = 'model.npy'
 #   correct internal parts based on which it returns true or false
 #   This function is useful to make sure the Q array isn't curropted when saving and loading
 def np_error_checker(arr):
-	if (type(arr) is np.ndarray and 
+	if (type(arr) is np.ndarray and
 		arr.shape==(NUM_ADJOINING_WALL_X_STATES, NUM_ADJOINING_WALL_Y_STATES, NUM_FOOD_DIR_X, NUM_FOOD_DIR_Y,
 					 NUM_ADJOINING_BODY_TOP_STATES, NUM_ADJOINING_BODY_BOTTOM_STATES, NUM_ADJOINING_BODY_LEFT_STATES,
 					 NUM_ADJOINING_BODY_RIGHT_STATES,NUM_ACTIONS)):
@@ -68,8 +68,8 @@ def initialize_q_as_zeros():
 					 NUM_ADJOINING_BODY_RIGHT_STATES, NUM_ACTIONS))
 
 
-#   Here we define a function to save the Q array that is passed to it. We run a quick check 
-#   to verify the format before saving   
+#   Here we define a function to save the Q array that is passed to it. We run a quick check
+#   to verify the format before saving
 def save(arr):
 	if np_error_checker(arr):
 		np.save(MODEL_SAVE_FILE,arr)

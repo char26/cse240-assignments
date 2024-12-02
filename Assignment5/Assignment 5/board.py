@@ -9,14 +9,14 @@ import helper
 #   Keeps track of the board and the snake
 class BoardEnv:
 
-    #   This is the constructor, it initialiazes a game variable including the current 
+    #   This is the constructor, it initialiazes a game variable including the current
     #       Snake location and food location.
     #   The show variable is used to keep track of when we should draw it on screen or not
     def __init__(self, snake_head_x, snake_head_y, food_x, food_y):
         self.game = Snake(snake_head_x, snake_head_y, food_x, food_y)
         self.show = False
 
-    #   All comments starting with a "*" are just calling functions in the Snake class which do the smae.    
+    #   All comments starting with a "*" are just calling functions in the Snake class which do the smae.
 
     #   *Returns all possible actions the snake can make
     def get_actions(self):
@@ -25,7 +25,7 @@ class BoardEnv:
     #   *Resets the game state
     def reset(self):
         return self.game.reset()
-    
+
     #   *Returns the current points during the current game state
     def get_points(self):
         return self.game.get_points()
@@ -45,7 +45,7 @@ class BoardEnv:
     #   Uses the pygame module to easily draw the board, snake, and food
     def draw(self, state, points, dead):
         snake_head_x, snake_head_y, snake_body, food_x, food_y = state
-        self.display.fill(helper.BLUE)    
+        self.display.fill(helper.BLUE)
         pygame.draw.rect( self.display, helper.BLACK,
                 [
                     helper.GRID_SIZE,
@@ -56,7 +56,7 @@ class BoardEnv:
 
         # draw snake head
         pygame.draw.rect(
-                    self.display, 
+                    self.display,
                     helper.GREEN,
                     [
                         snake_head_x,
@@ -69,7 +69,7 @@ class BoardEnv:
         # draw snake body
         for seg in snake_body:
             pygame.draw.rect(
-                self.display, 
+                self.display,
                 helper.GREEN,
                 [
                     seg[0],
@@ -81,7 +81,7 @@ class BoardEnv:
             )
         # draw food
         pygame.draw.rect(
-                    self.display, 
+                    self.display,
                     helper.RED,
                     [
                         food_x,
@@ -102,7 +102,7 @@ class BoardEnv:
         else:
             self.clock.tick(5)
 
-        return 
+        return
 
 
     #   Main function to display the game
@@ -118,7 +118,7 @@ class BoardEnv:
         self.display = pygame.display.set_mode((helper.DISPLAY_SIZE, helper.DISPLAY_SIZE), pygame.HWSURFACE)
         self.draw(self.game.get_state(), self.game.get_points(), False)
         self.show = True
-            
+
 
 #   Class to keep track of the snake
 #   Has functions defined to return useful information
@@ -144,11 +144,11 @@ class Snake:
         self.food_x = self.init_food_x
         self.food_y = self.init_food_y
 
-    #   Function to return the current points 
+    #   Function to return the current points
     def get_points(self):
         return self.points
 
-    #   Function to return the actions that the snake can make 
+    #   Function to return the actions that the snake can make
     #   0 -> up, 1 -> down, 2 -> left, 3 -> right
     def get_actions(self):
         return [0, 1, 2, 3]
@@ -165,7 +165,7 @@ class Snake:
 
     #   This function makes the move depending on the action passed to it.
     #   It also handles the case where the snake eats food and new food
-    #   needs to be generated. 
+    #   needs to be generated.
     #   It also decides if the snake is dead based on hitting walls,
     #   itself or runs out of max turns and returns true oif this is the case.
     def move(self, action):
@@ -216,7 +216,7 @@ class Snake:
         return False
 
 
-    #   This is the function that does a step, given an action. 
+    #   This is the function that does a step, given an action.
     #   it returns the next state, poitns and if it is dead.
     def step(self, action):
         is_dead = self.move(action)
@@ -236,7 +236,7 @@ class Snake:
     def random_food(self):
         max_x = (helper.DISPLAY_SIZE - helper.WALL_SIZE - helper.GRID_SIZE)
         max_y = (helper.DISPLAY_SIZE - helper.WALL_SIZE - helper.GRID_SIZE)
-        
+
         self.food_x = random.randint(helper.WALL_SIZE, max_x)//helper.GRID_SIZE * helper.GRID_SIZE
         self.food_y = random.randint(helper.WALL_SIZE, max_y)//helper.GRID_SIZE * helper.GRID_SIZE
 
@@ -247,10 +247,8 @@ class Snake:
     #   This is a helper function that checks if the newly cleated food is on the snake
     def check_food_on_snake(self):
         if self.food_x == self.snake_head_x and self.food_y == self.snake_head_y:
-            return True 
+            return True
         for seg in self.snake_body:
             if self.food_x == seg[0] and self.food_y == seg[1]:
                 return True
         return False
-        
-    
