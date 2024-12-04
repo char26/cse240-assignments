@@ -169,6 +169,8 @@ class SnakeAgent:
             sample = current_reward + self.gamma * max(self.Q[idx])
             self.Q[idx][action] = (1 - lr) * self.Q[idx][action] + lr * sample
 
+            self.Ne *= 0.9999
+
         else:
             # Exploit only
             action = max(self.actions, key=lambda a: self.Q[idx][a])

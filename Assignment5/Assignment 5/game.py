@@ -31,7 +31,7 @@ class SnakeGame:
         if self.args.NUM_TRAIN_ITER != 0:
             self.do_training()
         self.do_testing()
-        self.show_games()
+        # self.show_games()
 
     #   This is the function that does calls the functions to do reinforcement training
     #       as many times as specified. It also prints the statistics based on the
@@ -47,15 +47,15 @@ class SnakeGame:
         #   WRITE YOUR CODE IN THIS LOOP TO CALL THE TRAINING FUNCTION.
         #   AS TRAINING IS HAPPENING THE CODE IN THE LOOP WILL PRINT STATISTICS.
         #   Use self.env.reset() to reset your game after each iteration.
-        is_dead = False
         for game in range(1, self.args.NUM_TRAIN_ITER + 1):
-            while not is_dead:
-                state = self.env.get_state()
-                action = self.agent.agent_action(state, self.env.get_points(), is_dead)
-                state, points, is_dead = self.env.step(action)
-            is_dead = False
-            self.points_results.append(self.env.get_points())
+            state = self.env.get_state()
+            dead = False
+            action = self.agent.agent_action(state, 0, dead)
+            while not dead:
+                state, points, dead = self.env.step(action)
+                action = self.agent.agent_action(state, points, dead)
             self.env.reset()
+            self.points_results.append(points)
             print("TRAINING NUMBER : " + str(game))
 
 
@@ -83,13 +83,14 @@ class SnakeGame:
 
         for game in range(1, self.args.NUM_TEST_ITER + 1):
             print("TESTING NUMBER: " + str(game))
-            is_dead = False
-            while not is_dead:
-                state = self.env.get_state()
-                action = self.agent.agent_action(state, self.env.get_points(), is_dead)
-                state, points, is_dead = self.env.step(action)
-            points_results.append(self.env.get_points())
+            state = self.env.get_state()
+            dead = False
+            action = self.agent.agent_action(state, 0, dead)
+            while not dead:
+                state, points, dead = self.env.step(action)
+                action = self.agent.agent_action(state, points, dead)
             self.env.reset()
+            points_results.append(points)
 
         print("Testing takes", time.time() - start, "seconds")
         print("Number of Games:", len(points_results))
