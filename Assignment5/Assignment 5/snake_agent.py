@@ -59,84 +59,6 @@ class SnakeAgent:
     #   This can return a list of variables that help you keep track of
     #   conditions mentioned above.
     def helper_func(self, state: list):
-        available_moves = {0, 1, 2, 3}
-        snake_head_x = state[0]
-        snake_head_y = state[1]
-        snake_body = state[2]
-        food_x = state[3]
-        food_y = state[4]
-
-        # if wall to left, remove left (2)
-        if snake_head_x <= helper.GRID_SIZE:
-            available_moves.remove(2)
-        # if wall to right, remove right (3)
-        if snake_head_x + helper.GRID_SIZE >= helper.DISPLAY_SIZE-helper.GRID_SIZE:
-            available_moves.remove(3)
-        # if wall above, remove up (0)
-        if snake_head_y <= helper.GRID_SIZE:
-            available_moves.remove(0)
-        # if wall below, remove down (1)
-        if snake_head_y + helper.GRID_SIZE >= helper.DISPLAY_SIZE-helper.GRID_SIZE:
-            available_moves.remove(1)
-
-        # calculate adjacent squares and see if a snake body is in one
-        left_square = (snake_head_x - helper.GRID_SIZE, snake_head_y)
-        right_square = (snake_head_x + helper.GRID_SIZE, snake_head_y)
-        up_square = (snake_head_x, snake_head_y - helper.GRID_SIZE)
-        down_square = (snake_head_x, snake_head_y + helper.GRID_SIZE)
-
-        # if body to left, remove left (2)
-        if left_square in snake_body:
-            available_moves.remove(2)
-        # if body to right, remove right (3)
-        if right_square in snake_body:
-            available_moves.remove(3)
-        # if body above, remove up (0)
-        if up_square in snake_body:
-            available_moves.remove(0)
-        # if body below, remove down (1)
-        if down_square in snake_body:
-            available_moves.remove(1)
-
-        return list(available_moves)
-
-
-    # Computing the reward, need not be changed.
-    def compute_reward(self, points, dead):
-        if dead:
-            return -1
-        elif points > self.points:
-            return 1
-        else:
-            return -0.1
-
-    #   This is the code you need to write.
-    #   This is the reinforcement learning agent
-    #   use the helper_func you need to write above to
-    #   decide which move is the best move that the snake needs to make
-    #   using the compute reward function defined above.
-    #   This function also keeps track of the fact that we are in
-    #   training state or testing state so that it can decide if it needs
-    #   to update the Q variable. It can use the N variable to test outcomes
-    #   of possible moves it can make.
-    #   the LPC variable can be used to determine the learning rate (lr), but if
-    #   you're stuck on how to do this, just use a learning rate of 0.7 first,
-    #   get your code to work then work on this.
-    #   gamma is another useful parameter to determine the learning rate.
-    #   based on the lr, reward, and gamma values you can update the q-table.
-    #   If you're not in training mode, use the q-table loaded (already done)
-    #   to make moves based on that.
-    #   the only thing this function should return is the best action to take
-    #   ie. (0 or 1 or 2 or 3) respectively.
-    #   The parameters defined should be enough. If you want to describe more elaborate
-    #   states as mentioned in helper_func, use the state variable to contain all that.
-    def agent_action(self, state: list, points, dead):
-        possible_actions = self.helper_func(state)
-        if len(possible_actions) == 0:
-            return 0
-
-        reward = self.compute_reward(points, dead)
-        state_tuple = tuple(state)
         snake_head_x = state[0]
         snake_head_y = state[1]
         snake_body = state[2]
@@ -184,11 +106,71 @@ class SnakeAgent:
         if (snake_head_x + helper.GRID_SIZE, snake_head_y) in snake_body:
             num_adjoining_body_right_states = 1
 
-        if self._train:
-            pass
+        return [
+            num_adjoining_wall_x_states,
+            num_adjoining_wall_y_states,
+            num_food_dir_x,
+            num_food_dir_y,
+            num_adjoining_body_top_states,
+            num_adjoining_body_bottom_states,
+            num_adjoining_body_left_states,
+            num_adjoining_body_right_states
+        ]
+
+
+    # Computing the reward, need not be changed.
+    def compute_reward(self, points, dead):
+        if dead:
+            return -1
+        elif points > self.points:
+            return 1
         else:
-            pass
+            return -0.1
 
+    #   This is the code you need to write.
+    #   This is the reinforcement learning agent
+    #   use the helper_func you need to write above to
+    #   decide which move is the best move that the snake needs to make
+    #   using the compute reward function defined above.
+    #   This function also keeps track of the fact that we are in
+    #   training state or testing state so that it can decide if it needs
+    #   to update the Q variable. It can use the N variable to test outcomes
+    #   of possible moves it can make.
+    #   the LPC variable can be used to determine the learning rate (lr), but if
+    #   you're stuck on how to do this, just use a learning rate of 0.7 first,
+    #   get your code to work then work on this.
+    #   gamma is another useful parameter to determine the learning rate.
+    #   based on the lr, reward, and gamma values you can update the q-table.
+    #   If you're not in training mode, use the q-table loaded (already done)
+    #   to make moves based on that.
+    #   the only thing this function should return is the best action to take
+    #   ie. (0 or 1 or 2 or 3) respectively.
+    #   The parameters defined should be enough. If you want to describe more elaborate
+    #   states as mentioned in helper_func, use the state variable to contain all that.
+    def agent_action(self, state: list, points, dead):
+        idx = tuple(self.helper_func(state))
 
+        current_reward = self.compute_reward(points, dead)
 
-        # return action
+        if self._train:
+            # Exploration vs. Exploitation
+            if random.uniform(0, 1) < self.Ne / (self.Ne + sum(self.N[idx])):
+                action = random.choice(self.actions)  # Explore
+            else:
+                action = max(self.actions, key=lambda a: self.Q[idx][a])  # Exploit
+
+            # Update N table
+            self.N[idx][action] += 1
+
+            # Calculate learning rate
+            lr = self.LPC / (self.LPC + self.N[idx][action])
+
+            # Update Q table
+            sample = current_reward + self.gamma * max(self.Q[idx])
+            self.Q[idx][action] = (1 - lr) * self.Q[idx][action] + lr * sample
+
+        else:
+            # Exploit only
+            action = max(self.actions, key=lambda a: self.Q[idx][a])
+
+        return action
