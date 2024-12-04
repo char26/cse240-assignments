@@ -67,15 +67,15 @@ class SnakeAgent:
 
         # Understanding the current state of the game
         num_adjoining_wall_x_states = 0 # no wall
-        if snake_head_x == 0:
+        if snake_head_x == 40:
             num_adjoining_wall_x_states = 1 # wall to left
-        elif snake_head_x == helper.DISPLAY_SIZE:
+        elif snake_head_x == helper.DISPLAY_SIZE - helper.GRID_SIZE:
             num_adjoining_wall_x_states = 2 # wall to right
 
         num_adjoining_wall_y_states = 0 # no wall
-        if snake_head_y == 0:
+        if snake_head_y == 40:
             num_adjoining_wall_y_states = 1 # wall above
-        elif snake_head_y == helper.DISPLAY_SIZE:
+        elif snake_head_y == helper.DISPLAY_SIZE - helper.GRID_SIZE:
             num_adjoining_wall_y_states = 2 # wall below
 
         num_food_dir_x = 0 # no food
@@ -150,26 +150,33 @@ class SnakeAgent:
     def agent_action(self, state: list, points, dead):
         idx = tuple(self.helper_func(state))
 
-        current_reward = self.compute_reward(points, dead)
-
         if self._train:
+            last_action = self.a
+            last_state = self.s
+
+            if last_state:
+                last_idx = tuple(self.helper_func(last_state))
+                # Update N table
+                self.N[last_idx][last_action] += 1
+
+                # Calculate learning rate
+                lr = 0.7
+
+                # Update Q table
+                reward = self.compute_reward(points, dead)
+                sample = reward + self.gamma * max(self.Q[idx])
+                self.Q[last_idx][last_action] = (1 - lr) * self.Q[last_idx][last_action] + (lr * sample)
+
+                self.Ne *= 0.9999
+
             # Exploration vs. Exploitation
-            if random.uniform(0, 1) < self.Ne / (self.Ne + sum(self.N[idx])):
+            if random.uniform(0, 1) < self.Ne:
                 action = random.choice(self.actions)  # Explore
             else:
                 action = max(self.actions, key=lambda a: self.Q[idx][a])  # Exploit
 
-            # Update N table
-            self.N[idx][action] += 1
-
-            # Calculate learning rate
-            lr = self.LPC / (self.LPC + self.N[idx][action])
-
-            # Update Q table
-            sample = current_reward + self.gamma * max(self.Q[idx])
-            self.Q[idx][action] = (1 - lr) * self.Q[idx][action] + lr * sample
-
-            self.Ne *= 0.9999
+            self.a = action # last action
+            self.s = state # last state
 
         else:
             # Exploit only

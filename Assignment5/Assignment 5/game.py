@@ -31,7 +31,7 @@ class SnakeGame:
         if self.args.NUM_TRAIN_ITER != 0:
             self.do_training()
         self.do_testing()
-        # self.show_games()
+        self.show_games()
 
     #   This is the function that does calls the functions to do reinforcement training
     #       as many times as specified. It also prints the statistics based on the
@@ -66,7 +66,6 @@ class SnakeGame:
                    "Max points so far:", max(self.points_results[-NUM_TO_STAT:]),
                    "Min points so far:", min(self.points_results[-NUM_TO_STAT:]),")",
                )
-        print(self.agent.Q)
         print("Training takes", time.time() - start, "seconds")
         #   THIS LINE WILL SAVE THE MODEL TO THE FILE "model.npy"
         self.agent.save_model()
