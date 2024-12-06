@@ -31,7 +31,7 @@ class SnakeGame:
         if self.args.NUM_TRAIN_ITER != 0:
             self.do_training()
         self.do_testing()
-        self.show_games()
+        # self.show_games()
 
     #   This is the function that does calls the functions to do reinforcement training
     #       as many times as specified. It also prints the statistics based on the
@@ -54,10 +54,10 @@ class SnakeGame:
             while not dead:
                 state, points, dead = self.env.step(action)
                 action = self.agent.agent_action(state, points, dead)
-            self.env.reset()
+            self.agent.agent_action(state, points, dead)
             self.points_results.append(points)
+            self.env.reset()
             print("TRAINING NUMBER : " + str(game))
-
 
             if game % self.args.NUM_TO_STAT == 0:
                print(
@@ -88,8 +88,8 @@ class SnakeGame:
             while not dead:
                 state, points, dead = self.env.step(action)
                 action = self.agent.agent_action(state, points, dead)
-            self.env.reset()
             points_results.append(points)
+            self.env.reset()
 
         print("Testing takes", time.time() - start, "seconds")
         print("Number of Games:", len(points_results))

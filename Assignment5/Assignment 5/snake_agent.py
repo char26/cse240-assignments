@@ -23,6 +23,8 @@ class SnakeAgent:
         self.gamma = gamma
         self.reset()
 
+        self.epsilon = 0.7
+
         # Create the Q and N Table to work with
         self.Q = helper.initialize_q_as_zeros()
         self.N = helper.initialize_q_as_zeros()
@@ -64,30 +66,31 @@ class SnakeAgent:
         snake_body = state[2]
         food_x = state[3]
         food_y = state[4]
+        # print((snake_head_x, snake_head_y))
 
         # Understanding the current state of the game
         num_adjoining_wall_x_states = 0 # no wall
-        if snake_head_x == 40:
+        if snake_head_x == helper.BOARD_LIMIT_MIN:
             num_adjoining_wall_x_states = 1 # wall to left
-        elif snake_head_x == helper.DISPLAY_SIZE - helper.GRID_SIZE:
+        elif snake_head_x == helper.BOARD_LIMIT_MAX:
             num_adjoining_wall_x_states = 2 # wall to right
 
         num_adjoining_wall_y_states = 0 # no wall
-        if snake_head_y == 40:
+        if snake_head_y == helper.BOARD_LIMIT_MIN:
             num_adjoining_wall_y_states = 1 # wall above
-        elif snake_head_y == helper.DISPLAY_SIZE - helper.GRID_SIZE:
+        elif snake_head_y == helper.BOARD_LIMIT_MAX:
             num_adjoining_wall_y_states = 2 # wall below
 
         num_food_dir_x = 0 # no food
-        if snake_head_y == food_y and snake_head_x < food_x:
+        if snake_head_y == food_y and snake_head_x > food_x:
             num_food_dir_x = 1 # food to left
-        elif snake_head_y == food_y and snake_head_x > food_x:
+        elif snake_head_y == food_y and snake_head_x < food_x:
             num_food_dir_x = 2 # food to right
 
         num_food_dir_y = 0 # no food
-        if snake_head_x == food_x and snake_head_y < food_y:
+        if snake_head_x == food_x and snake_head_y > food_y:
             num_food_dir_y = 1 # food above
-        elif snake_head_x == food_x and snake_head_y > food_y:
+        elif snake_head_x == food_x and snake_head_y < food_y:
             num_food_dir_y = 2 # food below
 
         num_adjoining_body_top_states = 0 # no body above
@@ -156,22 +159,21 @@ class SnakeAgent:
 
             if last_state:
                 last_idx = tuple(self.helper_func(last_state))
-                # Update N table
-                self.N[last_idx][last_action] += 1
 
                 # Calculate learning rate
                 lr = 0.7
 
                 # Update Q table
                 reward = self.compute_reward(points, dead)
+                if reward == 1:
+                    self.points += reward
                 sample = reward + self.gamma * max(self.Q[idx])
                 self.Q[last_idx][last_action] = (1 - lr) * self.Q[last_idx][last_action] + (lr * sample)
 
-                self.Ne *= 0.9999
-
             # Exploration vs. Exploitation
-            if random.uniform(0, 1) < self.Ne:
+            if random.uniform(0, 40) < self.Ne:
                 action = random.choice(self.actions)  # Explore
+                self.Ne *= 0.999
             else:
                 action = max(self.actions, key=lambda a: self.Q[idx][a])  # Exploit
 
