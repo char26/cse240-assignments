@@ -160,13 +160,12 @@ class SnakeAgent:
             if last_state:
                 last_idx = tuple(self.helper_func(last_state))
 
-                # Calculate learning rate
-                lr = 0.7
-
+                self.gamma = 0.7
                 # Update Q table
+                self.N[last_idx][last_action] += 1  # Increment the visit count
+                lr = 0.7  # Update learning rate based on visit count
                 reward = self.compute_reward(points, dead)
-                if reward == 1:
-                    self.points += reward
+                self.points += reward
                 sample = reward + self.gamma * max(self.Q[idx])
                 self.Q[last_idx][last_action] = (1 - lr) * self.Q[last_idx][last_action] + (lr * sample)
 
